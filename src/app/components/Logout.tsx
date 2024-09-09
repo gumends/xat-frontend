@@ -34,7 +34,7 @@ export default function Logout() {
                     zIndex: 9999
                 })}
             >
-                <div>
+                <Box sx={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                     <Typography>Saindo!</Typography>
                     <Typography sx={{ mt: 1, mb: 2 }}>
                         Voce tem certeza que deseja sair?
@@ -51,9 +51,9 @@ export default function Logout() {
                             Cancelar
                         </Button>
                     </Stack>
-                </div>
+                </Box>
             </Snackbar>
-            <IconButton variant="soft" color="danger" sx={{ width: "20px", height: "20px" }} onClick={() => setOpen(true)}>
+            <IconButton variant="plain" color="danger" sx={{ width: "20px", height: "20px", '&:hover': { bgcolor: 'transparent' }}} onClick={() => setOpen(true)}>
                 <LogoutIcon sx={{ width: "60%" }} />
             </IconButton>
         </>

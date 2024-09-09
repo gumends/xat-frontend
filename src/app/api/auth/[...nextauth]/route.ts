@@ -1,8 +1,6 @@
-import { LoginSharp } from "@mui/icons-material"
 import NextAuth, { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { jwtDecode } from "jwt-decode";
-import { access } from "fs";
 
 const nextAuthOptions: NextAuthOptions = {
     providers: [
@@ -40,7 +38,6 @@ const nextAuthOptions: NextAuthOptions = {
 
         async session({ session, token }) {
             session = token.user as any
-            console.log(jwtDecode(session?.token).sub);
             return jwtDecode(session?.token)
         }
     }
