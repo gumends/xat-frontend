@@ -23,7 +23,9 @@ import ChatRoundedIcon from '@mui/icons-material/ChatRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import MenuPerfil from '@/app/components/MenuPerfil';
-
+import * as usuarioService from '@/services/usuario.service';
+import * as sessaoService from '@/services/sessoes.service';
+import { ICardsSessaoService } from '@/services/sessoes.service';
 const drawerWidth = 240;
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -112,17 +114,41 @@ interface IPageChat {
     nome: string;
     email: string;
     avatar?: string;
+    id: string;
 }
 
 
-export default function MiniDrawer( props: IPageChat ) {
+
+
+export default function MiniDrawer(props: IPageChat) {
+
+    const [sessoes, setSessoes] = useState<ICardsSessaoService | undefined>(undefined);
+
+
+    const buscaContato = async (email: string) => {
+        const response = await usuarioService.contato(email);
+        console.log(response);
+    };
+    const buscaSessoes = async () => {
+        await sessaoService.buscar(props.id).
+            then((r: sessaoService.ISessaoService) => {
+                console.log(r);
+                
+                setSessoes(r as unknown as sessaoService.IExtendedSessaoService);
+            });
+    };
+
     const theme = useTheme();
     const [open, setOpen] = useState(false);
     const [text, setText] = useState<string>('');
     const [busca, setBusca] = useState<string>('');
 
     React.useEffect(() => {
-        console.log(props.nome);
+        buscaSessoes();
+    }, []);
+
+    React.useEffect(() => {
+        sessaoService.buscar(props.id);
     }, []);
 
     const handleDrawerOpen = () => {
@@ -197,13 +223,15 @@ export default function MiniDrawer( props: IPageChat ) {
                                     value={busca}
                                     onChange={(e) => setBusca(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && console.log(busca)}
-                                    startDecorator={<IconButton > <SearchRoundedIcon sx={{ color: 'white' }} /> </ IconButton>}
+                                    startDecorator={<IconButton onClick={() => buscaContato(busca)} > <SearchRoundedIcon sx={{ color: 'white' }} /> </ IconButton>}
                                 />
                             </Box>
                         }
-
-                        <CardMenssagem nome="Loves" mensagem='Olá, eu gosto muito de voce' imagem={loves} />
-                        <CardMenssagem nome="Loves" mensagem='Olá, eu gosto muito de voce' imagem={loves} />
+                        {
+                            Array.isArray(sessoes) && sessoes.map((sessao, kay) => (
+                                <CardMenssagem key={kay} nome={sessao.usuario.nome + ' ' + sessao.usuario.sobreNome} mensagem='Olá, eu gosto muito de voce' />
+                            ))
+                        }
                     </Box>
                 </Drawer>
                 <Box component="main" sx={{ flexGrow: 1, mt: '102px', width: '100%' }}>

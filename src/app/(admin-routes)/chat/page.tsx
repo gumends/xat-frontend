@@ -10,7 +10,7 @@ export default async function Home() {
         <>
             {
                 session ?
-                    <MiniDrawer nome={session?.name} email={session?.email} avatar={session?.avatar} />
+                    <MiniDrawer nome={session?.name} email={session?.email} avatar={session?.avatar} id={session?.sub} />
                     :
                     <Logout />
             }

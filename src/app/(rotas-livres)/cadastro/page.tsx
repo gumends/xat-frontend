@@ -30,8 +30,8 @@ export default function LoginFinal() {
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     criar.criar({
-      firstName: nome,
-      lastName: sobreNome,
+      nome: nome,
+      sobreNome: sobreNome,
       email,
       password: senha
     }).then((r) => {

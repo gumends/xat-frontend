@@ -4,7 +4,7 @@ import { StaticImageData } from "next/image";
 interface CardMenssagemProps {
     nome: string;
     mensagem: string;
-    imagem: StaticImageData;
+    imagem?: StaticImageData;
     onClick?: () => void;
     sessao?: string;
 }
@@ -26,7 +26,7 @@ export default function CardMenssagem( props: CardMenssagemProps ) {
             onClick={props.onClick}
         >
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'left', width: '100%', pl: 0.5, color: 'white' }}>
-                <Avatar src={props.imagem.src}></Avatar>
+                <Avatar></Avatar>
                 <Box>
                     <Typography noWrap level="body-md" sx={{ marginLeft: '10px', color: 'white' }}>{props.nome}</Typography>
                     <Typography noWrap level="body-xs" sx={{ marginLeft: '10px', color: 'white' }}>{props.mensagem.length > 20 ? props.mensagem.slice(0, 25) + '...' : props.mensagem}</Typography>
