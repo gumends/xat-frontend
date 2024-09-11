@@ -6,8 +6,8 @@ import SessionProviders from "@/providers/sessionProviders";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Base Login",
-  description: "Sistema base de autentificação",
+  title: "XAT",
+  description: "Sistema de chat",
 };
 
 export default function RootLayout({

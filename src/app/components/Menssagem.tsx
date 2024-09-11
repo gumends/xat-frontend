@@ -3,7 +3,7 @@ import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 interface MenssagemProps {
     texto?: string
     imagem?: string
-    horario: string
+    horario: Date
     lado: boolean
 }
 
@@ -23,7 +23,7 @@ export default function Menssagem(props: MenssagemProps) {
                     <Typography sx={{ color: 'white' }} level="body-lg">{props.texto}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, alignItems: 'center', gap: 2,flexDirection: props.lado ? 'row-reverse' : 'row',}}>
-                    <Typography sx={{ color: 'white' }} level="body-xs">{props.horario}</Typography>
+                    <Typography sx={{ color: 'white' }} level="body-xs">{new Date(props.horario).toLocaleTimeString().slice(0, 5)}</Typography>
                     <DoneAllRoundedIcon sx={{ color: '#00e676' }} />
                 </Box>
             </Box>

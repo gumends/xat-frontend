@@ -3,6 +3,8 @@ export interface IConversaService {
     texto: string;
     usuario_id: string;
     sessao_id: string;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface ICriarConversaService {
@@ -29,8 +31,8 @@ async function criar(data: ICriarConversaService) {
     return response.json();
 }
 
-async function buscar(id1: string, id2: string) {
-    const response = await fetch(`http://localhost:3001/conversas/buscar/${id1}/${id2}`, {
+async function buscar(id: string) {
+    const response = await fetch(`http://localhost:3001/conversas/buscar/${id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
