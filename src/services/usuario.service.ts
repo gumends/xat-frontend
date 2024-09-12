@@ -1,13 +1,12 @@
 export interface IUsuarioService {
     nome: string;
-    sobreNome: string;
     email: string;
     password: string;
+    avatar?: string;
 }
 
 export interface iCriarUsuarioService {
     nome: string;
-    sobreNome: string;
     email: string;
     password: string;
 }
@@ -111,6 +110,19 @@ async function apagar(id: string) {
     return response.json();
 }
 
+async function buscarTodos(busca?: string) {
+    const response = await fetch(`http://localhost:3001/usuario/listar?busca=${busca}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    if (!response.ok) {
+        throw new Error(response.statusText);
+    }
+    return response.json();
+}
+
 export {
     criar,
     buscar,
@@ -118,5 +130,6 @@ export {
     ativar_desativar,
     contato,
     atualizar_senha,
-    apagar
+    apagar,
+    buscarTodos
 }

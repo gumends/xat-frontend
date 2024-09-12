@@ -8,7 +8,7 @@ import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
-import { Input } from '@mui/joy';
+import { DialogContent, DialogTitle, FormControl, FormLabel, Input, List, ListItem, ListItemButton, Modal, ModalDialog, Stack } from '@mui/joy';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -17,7 +17,7 @@ import logo from '@/assets/logo-icone.png';
 import { Avatar, Button } from '@mui/joy';
 import loves from '@/assets/loves.jpg';
 import CardMenssagem from '@/app/components/CardMenssagem';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Menssagem from '@/app/components/Menssagem';
 import ChatRoundedIcon from '@mui/icons-material/ChatRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
@@ -27,7 +27,12 @@ import * as usuarioService from '@/services/usuario.service';
 import * as sessaoService from '@/services/sessoes.service';
 import * as conversaService from '@/services/conversas.service';
 import { ICardsSessaoService } from '@/services/sessoes.service';
-import { IConversaService } from '@/services/conversas.service';
+import { IConversaService, ICriarConversaService } from '@/services/conversas.service';
+import { io } from 'socket.io-client';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import { IUsuarioService } from '@/services/usuario.service';
+import ChatIcon from '@mui/icons-material/Chat';
+
 const drawerWidth = 240;
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -119,9 +124,6 @@ interface IPageChat {
     id: string;
 }
 
-
-
-
 export default function MiniDrawer(props: IPageChat) {
 
     const theme = useTheme();
@@ -133,6 +135,8 @@ export default function MiniDrawer(props: IPageChat) {
     const [conversas, setConversas] = useState<IConversaService[]>([]);
     const [nomeSessao, setNomeSessao] = useState<string>('');
     const [avatarSessao, setAvatarSessao] = useState<string>('');
+    const [openBusca, setOpenBusca] = useState<boolean>(false);
+    const [buscaContatos, setBuscaContatos] = useState<IUsuarioService[]>([]);
 
     const buscarConversas = async (id: string) => {
         await conversaService.buscar(id)
@@ -141,9 +145,9 @@ export default function MiniDrawer(props: IPageChat) {
             })
     };
 
-    const buscaContato = async (email: string) => {
+    const buscaContatoEmail = async (email: string) => {
         const response = await usuarioService.contato(email);
-        setConversas(response);
+        console.log(response);
     };
     const buscaSessoes = async () => {
         await sessaoService.buscar(props.id).
@@ -152,6 +156,12 @@ export default function MiniDrawer(props: IPageChat) {
             });
     };
 
+    const buscaContato = async (busca: string) => {
+        usuarioService.buscarTodos(busca)
+            .then((response) => {
+                setBuscaContatos(response);
+            })
+    }
 
     React.useEffect(() => {
         buscaSessoes();
@@ -168,6 +178,25 @@ export default function MiniDrawer(props: IPageChat) {
     const handleDrawerClose = () => {
         setOpen(false);
     };
+
+    const socket = io('http://localhost:3001');
+
+    useEffect(() => {
+        socket.on('message', (data) => {
+            setConversas([...conversas, data]);
+        })
+    }, [conversas]);
+
+
+    const enviarMensagem = () => {
+        const message: ICriarConversaService = {
+            texto: text,
+            usuario_id: props.id,
+            sessao_id: idSessao
+        }
+        setText('');
+        socket.emit('message', message);
+    }
 
     return (
         <Box sx={{ width: '100vw', height: '100vh' }}>
@@ -223,7 +252,12 @@ export default function MiniDrawer(props: IPageChat) {
                 </AppBar>
                 <Drawer variant="permanent" open={open} sx={{ zIndex: 1 }} >
                     <DrawerHeader sx={{ bgcolor: '#424242', mt: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }} ><ChatRoundedIcon />  Chats</Typography>
+                        <IconButton onClick={() => setOpenBusca(true)} >
+                            <GroupAddIcon sx={{ color: 'white' }} />
+                        </IconButton>
+                        <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}  >
+                            Chats
+                        </Typography>
                         <IconButton onClick={handleDrawerClose} sx={{ color: 'white' }}>
                             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <MenuOpenRoundedIcon />}
                         </IconButton>
@@ -238,19 +272,19 @@ export default function MiniDrawer(props: IPageChat) {
                                     value={busca}
                                     onChange={(e) => setBusca(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && console.log(busca)}
-                                    startDecorator={<IconButton onClick={() => buscaContato(busca)} > <SearchRoundedIcon sx={{ color: 'white' }} /> </ IconButton>}
+                                    startDecorator={<SearchRoundedIcon sx={{ color: 'white' }} />}
                                 />
                             </Box>
                         }
                         {
-                            Array.isArray(sessoes) && sessoes.map((sessao, kay) => (
+                            Array.isArray(sessoes) && Array.isArray(sessoes) && sessoes.map((sessao, kay) => (
                                 <CardMenssagem
                                     key={kay}
-                                    nome={sessao.usuario.nome + ' ' + sessao.usuario.sobreNome}
+                                    nome={sessao.usuario.nome}
                                     mensagem=''
                                     onClick={() => {
                                         setIdSessao(sessao.sessao_id);
-                                        setNomeSessao(sessao.usuario.nome + ' ' + sessao.usuario.sobreNome);
+                                        setNomeSessao(sessao.usuario.nome);
                                         setAvatarSessao(sessao.avatar);
                                         buscarConversas(sessao.sessao_id)
                                     }}
@@ -261,7 +295,7 @@ export default function MiniDrawer(props: IPageChat) {
                 </Drawer>
                 <Box component="main" sx={{ flexGrow: 1, mt: '102px', width: '100%' }}>
                     {idSessao !== "" ?
-                        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1, mb: 18, width: '100%' }}>
                             {
                                 conversas.map((conversa) => (
                                     <Menssagem texto={conversa.texto} horario={conversa.created_at} lado={conversa.usuario_id === props.id ? true : false} key={conversa.id} />
@@ -281,6 +315,7 @@ export default function MiniDrawer(props: IPageChat) {
                         <Input
                             placeholder="Digite aqui"
                             value={text}
+                            onKeyDown={(e) => e.key === 'Enter' && enviarMensagem()}
                             onChange={(event) => setText(event.target.value)}
                             sx={{ flexGrow: 1, width: '100%', height: '50px', bgcolor: '#f5f5f5', borderEndEndRadius: 0, borderEndStartRadius: 0, border: '1px solid #e0e0e0' }}
                         />
@@ -296,11 +331,46 @@ export default function MiniDrawer(props: IPageChat) {
                             borderEndStartRadius: 5,
                             borderEndEndRadius: 5
                         }}>
-                            <Button>Enviar</Button>
+                            <Button onClick={() => enviarMensagem()}>Enviar</Button>
                         </Box>
                     </Box>
                     : null}
             </Box>
+            <React.Fragment>
+                <Modal open={openBusca} onClose={() => setOpenBusca(false)}>
+                    <ModalDialog>
+                        <DialogTitle>Buscar contato</DialogTitle>
+                        <DialogContent>Busque por um contato para iniciar uma conversa</DialogContent>
+                        <form
+                            onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
+                                event.preventDefault();
+                                buscaContato(busca);
+                            }}
+                        >
+                            <Stack spacing={2}>
+                                <FormControl>
+                                    <FormLabel>Nome Ou E-mail</FormLabel>
+                                    <Input autoFocus required value={busca} onChange={(e) => setBusca(e.target.value)} />
+                                </FormControl>
+                                <Button type="submit">Buscar</Button>
+                            </Stack>
+                        </form>
+                        <List>
+                            {buscaContatos.length > 0 && buscaContatos ? buscaContatos.map((contato) => (
+                                <ListItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                        <Avatar src={contato.avatar}></Avatar>
+                                        <Typography>{contato.nome}</Typography>
+                                    </Box>
+                                    <Box>
+                                        <IconButton onClick={() => { }} color='primary'><ChatIcon /></IconButton>
+                                    </Box>
+                                </ListItem>
+                            )) : null}
+                        </List>
+                    </ModalDialog>
+                </Modal>
+            </React.Fragment>
         </Box>
     );
 }

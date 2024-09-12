@@ -1,3 +1,5 @@
+import { signOut } from "next-auth/react";
+
 export interface ISessaoService {
     id: string;
     usuario_id_I: string;
@@ -13,7 +15,6 @@ export interface IUsuario {
     email: string;
     id: string;
     nome: string;
-    sobreNome: string;
 }
 
 export interface IExtendedSessaoService extends ICardsSessaoService {
@@ -28,6 +29,11 @@ export interface ICardsSessaoService {
 }
 
 export interface IAtualizarSessaoService extends ICriarSessaoService {}
+
+async function Logout() {
+    await signOut({ redirect: false });
+    window.location.href = '/login';
+}
 
 async function criar(data: ICriarSessaoService) {
     const response = await fetch('http://localhost:3001/sessoes/criar', {
@@ -51,10 +57,12 @@ async function buscar(id: string): Promise<ISessaoService> {
         headers: {
             'Content-Type': 'application/json',
         }
-    });
+    })
     if (!response.ok) {
-        throw new Error(response.statusText);
+        if (response.status === 401) Logout();
+        return response.json();
     }
+
     return response.json();
 }
 
