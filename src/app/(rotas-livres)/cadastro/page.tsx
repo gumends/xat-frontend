@@ -23,7 +23,6 @@ export default function LoginFinal() {
   const [email, setEmail] = useState<string>('');
   const [senha, setSenha] = useState<string>('');
   const [nome, setNome] = useState<string>('');
-  const [sobreNome, setSobreNome] = useState<string>('');
 
   const router = useRouter();
 
@@ -31,7 +30,6 @@ export default function LoginFinal() {
     event.preventDefault();
     criar.criar({
       nome: nome,
-      sobreNome: sobreNome,
       email,
       password: senha
     }).then((r) => {
@@ -75,16 +73,6 @@ export default function LoginFinal() {
                   placeholder="Digite seu Nome"
                   onChange={(event) => setNome(event.target.value)}
                   value={nome}
-                />
-              </FormControl>
-              <FormControl sx={{ width: '50%' }}>
-                <FormLabel>Sobre Nome</FormLabel>
-                <Input
-                  name="sobreNome"
-                  type="text"
-                  placeholder="Digite seu sobre nome"
-                  onChange={(event) => setSobreNome(event.target.value)}
-                  value={sobreNome}
                 />
               </FormControl>
             </Box>
