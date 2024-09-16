@@ -145,6 +145,25 @@ export default function MiniDrawer(props: IPageChat) {
             })
     };
 
+    const criarSessao = (id: string) => {
+        console.log(id);
+        
+        const sessao: sessaoService.ICriarSessaoService = {
+            usuario_id_I: props.id,
+            usuario_id_II: id
+        }
+        sessaoService.criar(sessao)
+            .then((response) => {
+                console.log(response);
+                
+                if (response) {
+                    buscaSessoes();
+                    setOpenBusca(false);
+                    setText('');
+                }
+            })
+    }
+
     const buscaContatoEmail = async (email: string) => {
         const response = await usuarioService.contato(email);
         console.log(response);
@@ -184,7 +203,9 @@ export default function MiniDrawer(props: IPageChat) {
     useEffect(() => {
         socket.on('message', (data) => {
             setConversas([...conversas, data]);
+            buscaSessoes();
         })
+
     }, [conversas]);
 
 
@@ -356,14 +377,14 @@ export default function MiniDrawer(props: IPageChat) {
                             </Stack>
                         </form>
                         <List>
-                            {buscaContatos.length > 0 && buscaContatos ? buscaContatos.map((contato) => (
-                                <ListItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {buscaContatos.length > 0 && buscaContatos ? buscaContatos.map((contato, kay) => (
+                                <ListItem  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} >
                                     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                                         <Avatar src={contato.avatar}></Avatar>
                                         <Typography>{contato.nome}</Typography>
                                     </Box>
                                     <Box>
-                                        <IconButton onClick={() => { }} color='primary'><ChatIcon /></IconButton>
+                                        <IconButton onClick={() => criarSessao(contato.id)} color='primary'><ChatIcon /></IconButton>
                                     </Box>
                                 </ListItem>
                             )) : null}
