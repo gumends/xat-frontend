@@ -127,7 +127,7 @@ interface IPageChat {
 export default function MiniDrawer(props: IPageChat) {
 
     const theme = useTheme();
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(true);
     const [text, setText] = useState<string>('');
     const [busca, setBusca] = useState<string>('');
     const [idSessao, setIdSessao] = useState<string>('');
@@ -205,7 +205,6 @@ export default function MiniDrawer(props: IPageChat) {
             setConversas([...conversas, data]);
             buscaSessoes();
         })
-
     }, [conversas]);
 
 
@@ -238,7 +237,7 @@ export default function MiniDrawer(props: IPageChat) {
                 <Avatar sx={{ height: '29px', width: '30px' }}>
                     <img src={logo.src} alt="logo xat" style={{ height: '30px', width: '30px' }} />
                 </Avatar>
-                <Box>
+                <Box sx={{ }}>
                     <MenuPerfil {...props} />
                 </Box>
             </Box>
@@ -284,7 +283,7 @@ export default function MiniDrawer(props: IPageChat) {
                         </IconButton>
                     </DrawerHeader>
                     <Divider sx={{ bgcolor: 'white' }} />
-                    <Box sx={{ bgcolor: '#536dfe', width: '100%', height: '100%', overflow: 'auto', p: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    <Box sx={{ bgcolor: '#536dfe', width: '100%', height: '100%', overflow: 'auto', p: 1, display: 'flex', flexDirection: 'column', gap: 1.5}}>
                         {
                             open &&
                             <Box>

@@ -20,9 +20,10 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
 import DialogContent from '@mui/joy/DialogContent';
 import Stack from '@mui/joy/Stack';
-import Add from '@mui/icons-material/Add';
+import * as usuarioService from '@/services/usuario.service';
 
 interface iMenu {
+    id?: string
     nome: string
     email: string
     avatar?: string
@@ -31,6 +32,11 @@ export default function MenuPerfil(props: iMenu) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [openModal, setOpenModal] = useState(false);
+    const [titulo, setTitulo] = useState('');
+    const [subTitulo, setSubTitulo] = useState('');
+    const [id, setId] = useState(props.id ? props.id : '');
+    const [nome, setNome] = useState(props.nome ? props.nome : '');
+    const [email, setEmail] = useState(props.email ? props.email : '');
 
     async function logout() {
         await signOut({
@@ -40,36 +46,84 @@ export default function MenuPerfil(props: iMenu) {
         setOpen(false)
     }
 
+    async function edit(nome: string, email: string) {
+        usuarioService.atualizar(id, {
+            nome: nome,
+            email: email,
+        }).then((res) => {
+            if (res) {
+                setOpenModal(false)
+                logout()
+            }
+        })
+    }
+
     return (
         <>
             <React.Fragment>
-                <Modal open={openModal} onClose={() => setOpenModal(false)}>
-                    <ModalDialog>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
-                            <Avatar src={props.avatar} sx={{ width: 100, height: 100 }} />
-                            <DialogTitle>{props.nome}</DialogTitle>
-                            <DialogContent>{props.email}</DialogContent>
-                        </Box>
-                        <form
-                            onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
-                                event.preventDefault();
-                                setOpenModal(false);
-                            }}
+                <Modal open={openModal} onClose={() => setOpenModal(false)} sx={{ zIndex: 9999 }}>
+                    <>
+                        <Snackbar
+                            autoHideDuration={5000}
+                            variant="solid"
+                            color="warning"
+                            size="lg"
+                            invertedColors
+                            open={open}
+                            onClose={() => setOpen(false)}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                            sx={(theme) => ({
+                                background: `linear-gradient(45deg, ${theme.palette.primary[600]} 30%, ${theme.palette.primary[500]} 90%})`,
+                                maxWidth: 360,
+                                zIndex: 999
+                            })}
                         >
-                            <Stack spacing={2}>
+                            <Box>
+                                <Typography>Atualizar dados!</Typography>
+                                <Typography sx={{ mt: 1, mb: 2 }}>
+                                    Ao atualizar os dados, você ira ser redirecionado para a tela de login.
+                                </Typography>
+                                <Stack direction="row" spacing={1}>
+                                    <Button variant="solid" color="primary" onClick={() => { edit(nome, email) }}>
+                                        Confirmar
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        color="danger"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        Cancelar
+                                    </Button>
+                                </Stack>
+                            </Box>
+                        </Snackbar>
+                        <ModalDialog>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
+                                <Avatar src={props.avatar} sx={{ width: 100, height: 100 }} />
+                                <DialogTitle>{props.nome}</DialogTitle>
+                                <DialogContent>{props.email}</DialogContent>
+                            </Box>
+                            <form
+                                onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
+                                    event.preventDefault();
+                                    setOpen(true);
+                                }}
+                            >
+                                <Stack spacing={2}>
 
-                                <FormControl>
-                                    <FormLabel>Nome</FormLabel>
-                                    <Input autoFocus required />
-                                </FormControl>
-                                <FormControl>
-                                    <FormLabel>E-mail</FormLabel>
-                                    <Input required />
-                                </FormControl>
-                                <Button type="submit">Submit</Button>
-                            </Stack>
-                        </form>
-                    </ModalDialog>
+                                    <FormControl>
+                                        <FormLabel>Nome</FormLabel>
+                                        <Input value={nome} onChange={(e) => setNome(e.target.value)} type='text' name='nome' autoFocus required />
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel>E-mail</FormLabel>
+                                        <Input value={email} onChange={(e) => setEmail(e.target.value)} type='email' name='email' required />
+                                    </FormControl>
+                                    <Button type="submit">Atualizar</Button>
+                                </Stack>
+                            </form>
+                        </ModalDialog>
+                    </>
                 </Modal>
             </React.Fragment>
             <Snackbar
@@ -84,16 +138,15 @@ export default function MenuPerfil(props: iMenu) {
                 sx={(theme) => ({
                     background: `linear-gradient(45deg, ${theme.palette.primary[600]} 30%, ${theme.palette.primary[500]} 90%})`,
                     maxWidth: 360,
-                    zIndex: 9999
                 })}
             >
                 <Box>
                     <Typography>Saindo!</Typography>
                     <Typography sx={{ mt: 1, mb: 2 }}>
-                        Voce tem certeza que deseja sair?
+                        Ao sair, você ira ser redirecionado para a tela de login.
                     </Typography>
                     <Stack direction="row" spacing={1}>
-                        <Button variant="solid" color="primary" onClick={() => logout()}>
+                        <Button variant="solid" color="primary" onClick={() => { logout() }}>
                             Confirmar
                         </Button>
                         <Button
@@ -110,7 +163,7 @@ export default function MenuPerfil(props: iMenu) {
                 <MenuButton
                     slots={{ root: IconButton }}
                 >
-                    <Avatar></Avatar>
+                    <Avatar src={props.avatar} sx={{ width: 30, height: 30 }}></Avatar>
                 </MenuButton>
                 <Menu placement="bottom-end" sx={{ width: 200 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '100%', p: 1, textAlign: 'center' }}>

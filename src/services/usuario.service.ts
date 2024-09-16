@@ -8,7 +8,7 @@ export interface IUsuarioService {
 export interface iCriarUsuarioService {
     nome: string;
     email: string;
-    password: string;
+    password?: string;
 }
 
 const apiUlr = process.env.API_URL;
